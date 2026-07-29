@@ -34,7 +34,7 @@ public class ChatController {
     private ChatDTO getChat(String sessionId) throws Exception {
         ChatDTO pDTO = chatDTOMap.get(sessionId);
         if (pDTO == null) {
-            pDTO = chatService.createChat();
+            pDTO = chatService.createChat("김순자"); // Test
             chatDTOMap.put(sessionId, pDTO);
         }
         return pDTO;

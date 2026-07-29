@@ -13,6 +13,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -27,6 +28,8 @@ public class ChatService implements IChatService {
 
     private final RestClient restClient;
 
+    private final String PROMPT = "당신의 이름은 도담이입니다. 당신은 친절하고 알기 쉬운 말투를 사용하며, 가능하다면 대화를 지속하도록 시도하며 오늘 일어난 일을 사용자가 계속해서 말하도록 유도하여야 합니다. 당신은 문자로만 답변해야 하며 Markdown이나 표 등은 절대로 생성해서는 안 됩니다. 사용자의 이름은 {name}입니다.";
+
     @Override
     public String transcribe(MultipartFile file) throws Exception {
         log.info("Calling transcribe");
@@ -40,9 +43,13 @@ public class ChatService implements IChatService {
     }
 
     @Override
-    public ChatDTO createChat() {
+    public ChatDTO createChat(String name) {
         log.info("Calling createChat");
-        return new ChatDTO(LLM_MODEL, new ArrayList<>());
+
+        List<ChatDTO.ChatMessageDTO> messageList = new ArrayList<>();
+        messageList.add(new ChatDTO.ChatMessageDTO(ChatDTO.Role.system, PROMPT.replace("{name}", name)));
+
+        return new ChatDTO(LLM_MODEL, messageList);
     }
 
     @Override
@@ -51,6 +58,7 @@ public class ChatService implements IChatService {
         ChatDTO.ChatResultDTO result = restClient.post().uri(LLM_API_URL).contentType(MediaType.APPLICATION_JSON).body(pDTO).retrieve().body(ChatDTO.ChatResultDTO.class);
         if (result == null) return new ChatDTO.ChatMessageDTO(ChatDTO.Role.assistant, "");
         pDTO.messages().add(result.message());
+        log.info(pDTO.toString());
         return result.message();
     }
 }

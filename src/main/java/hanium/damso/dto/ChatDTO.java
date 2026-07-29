@@ -8,7 +8,9 @@ public record ChatDTO(String model, List<ChatMessageDTO> messages, boolean strea
     }
     public enum Role {
         user,
-        assistant
+        assistant,
+        system,
+        tool
     }
     public record ChatMessageDTO(Role role, String content) {}
     public record ChatResultDTO(ChatMessageDTO message) {}
